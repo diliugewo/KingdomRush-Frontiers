@@ -1,7 +1,6 @@
 #include "AppDelegate.h"
-#include "scene\LoadtoStart.h"
-#include "scene\Start.h"
-
+#include "LoadtoStart.h"
+#include "HelloWorldScene.h"
 
 USING_NS_CC;
 
@@ -24,41 +23,40 @@ void AppDelegate::initGLContextAttrs()
     GLView::setGLContextAttrs(glContextAttrs);
 }
 
-bool AppDelegate::applicationDidFinishLaunching() {
+bool AppDelegate::applicationDidFinishLaunching()
+{
     // initialize director
     auto director = Director::getInstance();
     auto glview = director->getOpenGLView();
     if(!glview) {
         glview = GLViewImpl::createWithRect("KingdomRush2", Rect(0, 0, 960, 640));
-		glview->setFrameSize(1136, 640);
+        glview->setFrameSize(1136, 640);
         director->setOpenGLView(glview);
     }
 
     //director->getOpenGLView()->setDesignResolutionSize(1136, 640, ResolutionPolicy::SHOW_ALL);
     //保持传入的设计分辨率高度不变，根据屏幕分辨率修正设计分辨率的宽度。
-	director->getOpenGLView()->setDesignResolutionSize(960, 640, ResolutionPolicy::FIXED_HEIGHT);
+    director->getOpenGLView()->setDesignResolutionSize(960, 640, ResolutionPolicy::FIXED_HEIGHT);
 
-	// turn on display FPS
+    // turn on display FPS
     director->setDisplayStats(true);
 
     // set FPS. the default value is 1.0/60 if you don't call this
     director->setAnimationInterval(1.0 / 60);
 
     FileUtils::getInstance()->addSearchPath("res");
+    
+    bool isFirstPlay = UserDefault::getInstance()->getBoolForKey("isFirstPlay");
 
-	bool isFirstPlay = UserDefault::getInstance()->getBoolForKey("isFirstPlay");
-
-	if (!isFirstPlay)
-	{
-		UserDefault::getInstance()->setBoolForKey("isPlayMusic", true);
-		UserDefault::getInstance()->setBoolForKey("isPlayEffect", true);
-		UserDefault::getInstance()->setBoolForKey("isFirstPlay", true);
-
-	}
+    if (!isFirstPlay)
+    {
+        UserDefault::getInstance()->setBoolForKey("isPlayMusic", true);
+        UserDefault::getInstance()->setBoolForKey("isPlayEffect", true);
+        UserDefault::getInstance()->setBoolForKey("isFirstPlay", true);
+    }
 
     // create a scene. it's an autorelease object
-	auto scene = LoadtoStart::createScene();
-	//auto scene = Start::createScene();
+    auto scene = LoadtoStart::createScene();
     // run
     director->runWithScene(scene);
 

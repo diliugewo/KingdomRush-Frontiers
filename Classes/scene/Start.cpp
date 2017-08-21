@@ -1,4 +1,5 @@
 #include "Start.h"
+#include "GameManager.h"
 
 Scene* Start::createScene()
 {
@@ -45,9 +46,10 @@ bool Start::init()
             #endif
         }
     });
+    
     auto btn_Start = (Button*)rootNode->getChildByName("btn_Start");
 
-    //默认情况下，。
+    //KLG默认情况下，。
     //如果要设定表达式能够访问外部变量，可以在 [] 内写入 & 或者 = 加上变量名，其中 & 表示按引用访问，
     //= 表示按值访问，变量之间用逗号分隔，比如 [=factor, &total] 表示按值访问变量 factor，而按引用访问 total。
     sp_Log->runAction(Sequence::create(
@@ -99,6 +101,10 @@ bool Start::init()
     addChild(m_nodeSavelot);
     m_nodeSavelot->setPosition(Vec2(visibleSize.width / 2, -300));
     
+    //测试 有存档1
+    UserDefault::getInstance()->setBoolForKey("SavaGame1", true);
+    UserDefault::getInstance()->setIntegerForKey("SavaGame1_Star", 50);
+    
     initSaveMenu();
     
     btn_Close = (Button*)Helper::seekWidgetByName(static_cast<Layout*>(m_nodeSavelot), "btn_Close");
@@ -106,8 +112,7 @@ bool Start::init()
 
     //start按钮响应
     btn_Start->addTouchEventListener(CC_CALLBACK_2(Start::btn_Start_CallBack, this));
-    
-    
+
     
     return true;
 }
@@ -127,13 +132,17 @@ void Start::initSaveMenu()
         Button* delete_ = (Button*)m_nodeSavelot->getChildByName(txt);
         
         memset(txt, 0, sizeof(txt));
-        sprintf(txt, "%s%d", "img_Star", i+1);
+        sprintf(txt, "%s%d", "img_Star_", i+1);
         //获取star图片
         ImageView * img = (ImageView*)m_nodeSavelot->getChildByName(txt);
         
         memset(txt, 0, sizeof(txt));
         sprintf(txt, "%s%d", "txt_", i+1);
-        Text* text = (Text*)m_nodeSavelot->getChildByName(txt);
+        Text* text1 = (Text*)m_nodeSavelot->getChildByName(txt);
+        
+        memset(txt, 0, sizeof(txt));
+        sprintf(txt, "%s%d", "txtnum_", i+1);
+        Text* text2 = (Text*)m_nodeSavelot->getChildByName(txt);
         
         memset(txt, 0, sizeof(txt));
         sprintf(txt, "%s%d", "SavaGame", i+1);
@@ -141,10 +150,13 @@ void Start::initSaveMenu()
         //有存档 初始化存档信息
         if (havegamesave)
         {
-            int getStars = UserDefault::getInstance()->getIntegerForKey(txt);
+            int getStars = UserDefault::getInstance()->getIntegerForKey(String::createWithFormat("SavaGame%d_Star", i+1)->getCString());
             memset(txt, 0, sizeof(txt));
-            sprintf(txt, "SLOT 1 \n%d/100", getStars);
-            text->setString(txt);
+            //KLG格式化字符串 可以加换行\n
+            //sprintf(txt, "SLOT 1 \n%d/100", getStars);
+            sprintf(txt, "%d/100", getStars);
+            text2->setString(txt);
+            delete_->addTouchEventListener(CC_CALLBACK_2(Start::btn_Deletegame_CallBack, this));
         }
         else
         {
@@ -152,17 +164,142 @@ void Start::initSaveMenu()
             save->addTouchEventListener(CC_CALLBACK_2(Start::btn_Newgame_CallBack, this));
             delete_->setVisible(false);
             img->setVisible(false);
-            text->setVisible(false);
+            text1->setVisible(false);
+            text2->setVisible(false);
         }
     }
 }
+
+void Start::deleteGameRecord(int sid)
+{
+    //开启存档
+    UserDefault::getInstance()->setBoolForKey(String::createWithFormat("SavaGame%d", sid)->getCString(), false);
+    //
+    for(int i=0;i<13;i++)
+    {
+        UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Level_%d", sid, i)->getCString(),0);
+    }
+    
+    for(int i=0;i<13;i++)
+    {
+        UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Level_%d_star", sid, i)->getCString(),0);
+    }
+    
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_DownCount", sid)->getCString(),0);
+    
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_NewDown", sid)->getCString(),0);
+    
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_StarLeft", sid)->getCString(),0);
+    
+    //总星数
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Star", sid)->getCString(),0);
+    
+    //宝石
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Gem", sid)->getCString(),0);
+    
+    //物品数量
+    for(int i = 0;i<6;i++)
+        UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Shop_%d", sid, i)->getCString(),0);
+}
+
+void Start::conform_delete(Ref* pSender, int sid)
+{
+    //界面显示new game
+    Button* save = (Button*)m_nodeSavelot->getChildByName(String::createWithFormat("btn_%d", sid)->getCString());
+    save->setTitleText("new game");
+    
+    save = (Button*)m_nodeSavelot->getChildByName(String::createWithFormat("btn_%d", sid + 3)->getCString());
+    save->setVisible(false);
+    
+    Text* text = (Text*)m_nodeSavelot->getChildByName(String::createWithFormat("txt_%d", sid)->getCString());
+    text->setVisible(false);
+    
+    m_nodeSavelot->getChildByTag(sid)->setVisible(false);
+    
+    //删除游戏存档
+    deleteGameRecord(sid);
+}
+
+void Start::cancel_delete(Ref* pSender, int sid)
+{
+    //获取txt_1.2.3
+    Text* text = (Text*)m_nodeSavelot->getChildByName(String::createWithFormat("txt_%d", sid)->getCString());
+    text->setString(String::createWithFormat("SLOT %d", sid)->getCString());
+    text->setFontSize(36);
+    
+    //获取star图片
+    ImageView* img_star = (ImageView*)m_nodeSavelot->getChildByName(String::createWithFormat("img_Star_%d", sid)->getCString());
+    img_star->setVisible(true);
+    
+    //获取得分text
+    text = (Text*)m_nodeSavelot->getChildByName(String::createWithFormat("txtnum_%d", sid)->getCString());
+    text->setVisible(true);
+    
+    //菜单设置为false;
+    m_nodeSavelot->getChildByTag(sid)->setVisible(false);
+    
+    //x按钮重新设置回调
+    //Button* btn = (Button*)m_nodeSavelot->getChildByName(String::createWithFormat("btn_%d", sid + 3)->getCString());
+    //btn->addTouchEventListener(CC_CALLBACK_2(Start::btn_Deletegame_CallBack, this));
+}
+
 void Start::btn_Newgame_CallBack(Ref* pSender,Widget::TouchEventType type)
 {
     if (type == Widget::TouchEventType::ENDED)
     {
+        GameManager* ins = GameManager::getInstance();
         //切换游戏大地图场景
         //createNewGame();
         
+    }
+}
+
+void Start::btn_Deletegame_CallBack(Ref* pSender,Widget::TouchEventType type)
+{
+    if (type == Widget::TouchEventType::ENDED)
+    {
+        //获取控件userdata 判断 正在进行删除操作的存档id
+        Button* dlt_btn = dynamic_cast<Button*>(pSender);
+        auto usertext = ((cocostudio::ComExtensionData*)(dlt_btn->getComponent("ComExtensionData")))->getCustomProperty();
+        
+        int sid = atoi((usertext.c_str()));
+        
+        //获取txt_1.2.3
+        Text* text1 = (Text*)m_nodeSavelot->getChildByName(String::createWithFormat("txt_%d", sid)->getCString());
+        text1->setString("Comfire delete?");
+        text1->setFontSize(24);
+        
+        //获取star图片
+        ImageView* img_star = (ImageView*)m_nodeSavelot->getChildByName(String::createWithFormat("img_Star_%d", sid)->getCString());
+        img_star->setVisible(false);
+        //获取得分text
+        Text* text2 = (Text*)m_nodeSavelot->getChildByName(String::createWithFormat("txtnum_%d", sid)->getCString());
+        text2->setVisible(false);
+        
+        //dlt_btn->addTouchEventListener(CC_CALLBACK_1(Start::cancel_delete, this, sid));
+        if (m_nodeSavelot->getChildByTag(sid))
+        {
+            m_nodeSavelot->getChildByTag(sid)->setVisible(true);
+            return;
+        }
+        
+        Sprite* sp1 = Sprite::createWithSpriteFrameName("mainmenu_saveslot_confirmdelete_0001.png");
+        Sprite* sp2 = Sprite::createWithSpriteFrameName("mainmenu_saveslot_confirmdelete_0001.png");
+        auto confirm_Delete = MenuItemSprite::create(sp1, sp2, CC_CALLBACK_1(Start::conform_delete, this, sid));
+        confirm_Delete->setPosition(Point(text1->getPositionX() - 80, text1->getPositionY() - 50));
+        
+        sp1 = Sprite::createWithSpriteFrameName("mainmenu_saveslot_confirmdelete_0002.png");
+        sp2 = Sprite::createWithSpriteFrameName("mainmenu_saveslot_confirmdelete_0002.png");
+        auto cancel_Delete_1 =
+        MenuItemSprite::create(sp1, sp2, CC_CALLBACK_1(Start::cancel_delete, this, sid));
+        cancel_Delete_1->setPosition(Point(text1->getPositionX() + 80, text1->getPositionY() - 50));
+        auto delete1_menu = Menu::create(confirm_Delete, cancel_Delete_1, NULL);
+        delete1_menu->setPosition(Vec2::ZERO);
+        delete1_menu->setAnchorPoint(ccp(0, 0));
+        auto point = delete1_menu->getAnchorPoint();
+        auto confirm = Node::create();
+        confirm->addChild(delete1_menu);
+        m_nodeSavelot->addChild(confirm, 1, sid);
     }
 }
 

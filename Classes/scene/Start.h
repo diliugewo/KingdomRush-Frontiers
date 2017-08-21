@@ -5,6 +5,7 @@
 #include "cocostudio/CocoStudio.h"
 #include "SimpleAudioEngine.h" 
 #include "ui/CocosGUI.h"
+#include "editor-support/cocostudio/CCComExtensionData.h"
 USING_NS_CC;
 
 using namespace cocos2d::ui;
@@ -36,8 +37,14 @@ public:
     void btn_Effect_CallBack(Ref* pSender,Widget::TouchEventType type);
     void btn_Start_CallBack(Ref* pSender,Widget::TouchEventType type);
     void btn_Newgame_CallBack(Ref* pSender,Widget::TouchEventType type);
+    void btn_Deletegame_CallBack(Ref* pSender,Widget::TouchEventType type);
+    
     //初始化 存档按钮
     void initSaveMenu();
+    //删除 存档
+    void deleteGameRecord(int sid);
+    void conform_delete(Ref* pSender,int sid);
+    void cancel_delete(Ref* pSender,int sid);
 };
 
 #endif 
