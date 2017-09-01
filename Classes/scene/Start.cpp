@@ -1,5 +1,7 @@
 #include "Start.h"
 #include "GameManager.h"
+#include "TransitionGame.h"
+#include "LoadtoStart.h"
 
 Scene* Start::createScene()
 {
@@ -161,12 +163,13 @@ void Start::initSaveMenu()
         else
         {
             save->setTitleText("new game");
-            save->addTouchEventListener(CC_CALLBACK_2(Start::btn_Newgame_CallBack, this));
             delete_->setVisible(false);
             img->setVisible(false);
             text1->setVisible(false);
             text2->setVisible(false);
         }
+        //开始新 / 继续 游戏
+        save->addTouchEventListener(CC_CALLBACK_2(Start::btn_Newgame_CallBack, this));
     }
 }
 
@@ -247,10 +250,17 @@ void Start::btn_Newgame_CallBack(Ref* pSender,Widget::TouchEventType type)
 {
     if (type == Widget::TouchEventType::ENDED)
     {
-        GameManager* ins = GameManager::getInstance();
-        //切换游戏大地图场景
-        //createNewGame();
+        Button* dlt_btn = dynamic_cast<Button*>(pSender);
+        auto usertext = ((cocostudio::ComExtensionData*)(dlt_btn->getComponent("ComExtensionData")))->getCustomProperty();
         
+        int sid = atoi((usertext.c_str()));
+        
+        GameManager* instance = GameManager::getInstance();
+        //切换游戏大地图场景
+        instance->setInstance(sid);
+        SimpleAudioEngine::getInstance()->stopBackgroundMusic();
+        UserDefault::getInstance()->setBoolForKey(instance->SaveGame, true);
+        Director::getInstance()->replaceScene(TransitionGame::create(2.0f, LoadtoStart::createScene()));
     }
 }
 
