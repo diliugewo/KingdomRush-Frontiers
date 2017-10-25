@@ -1,5 +1,6 @@
 #include "TransitionGame.h"
 #include "SimpleAudioEngine.h"
+
 using namespace CocosDenshion;
 
 TransitionGame::TransitionGame()
@@ -27,6 +28,8 @@ void TransitionGame::onEnter()
     //要切入的场景
     _inScene->setVisible(false);
     TransitionScene::onEnter();
+    _outScene->setPosition(0, 0);
+    _inScene->setPosition(0, 0);
     
     Size visibleSize = Director::getInstance()->getVisibleSize();
     Point LeftBegin, LeftEnd, RightBegin, RightEnd;
@@ -67,18 +70,18 @@ void TransitionGame::onEnter()
     if (UserDefault::getInstance()->getBoolForKey("isPlayEffect"))
         SimpleAudioEngine::getInstance()->playEffect("sound/GUITransitionOpen.wav");
     sp_left->runAction(Sequence::create(EaseBackIn::create(pActionLeft),
-                                    CC_CALLBACK_0(TransitionGame::OnSecondActionFinish, this),
+                                    CallFunc::create(CC_CALLBACK_0(TransitionGame::OnSecondActionFinish, this)),
                                         DelayTime::create(1.0f),
                                         EaseBackOut::create(pActionLeft1),
-                                        CC_CALLBACK_0(TransitionGame::LRFinish, this),
                                         NULL));
     sp_right->runAction(Sequence::create(EaseBackIn::create(pActionRight),
                                           DelayTime::create(1.0f),
-                                          EaseBackOut::create(pActionRight1),
+                                         EaseBackOut::create(pActionRight1),
+                                         CallFunc::create(CC_CALLBACK_0(TransitionGame::LRFinish, this)),
                                           NULL));
 }
 
-void TransitionGame::LRFinish(void)
+void TransitionGame::LRFinish()
 {
     TransitionScene::finish();
 }

@@ -2,6 +2,7 @@
 #include "GameManager.h"
 #include "TransitionGame.h"
 #include "LoadtoStart.h"
+#include "MainWorldScene.h"
 
 Scene* Start::createScene()
 {
@@ -221,6 +222,7 @@ void Start::conform_delete(Ref* pSender, int sid)
     
     //É¾³ýÓÎÏ·´æµµ
     deleteGameRecord(sid);
+    
 }
 
 void Start::cancel_delete(Ref* pSender, int sid)
@@ -260,7 +262,9 @@ void Start::btn_Newgame_CallBack(Ref* pSender,Widget::TouchEventType type)
         instance->setInstance(sid);
         SimpleAudioEngine::getInstance()->stopBackgroundMusic();
         UserDefault::getInstance()->setBoolForKey(instance->SaveGame, true);
-        Director::getInstance()->replaceScene(TransitionGame::create(2.0f, LoadtoStart::createScene()));
+        
+        //Director::getInstance()->replaceScene(TransitionGame::create(2.0f, LoadtoStart::createScene()));
+        Director::getInstance()->replaceScene(TransitionGame::create(2.0f,MainWorldScene::createScene()));
     }
 }
 

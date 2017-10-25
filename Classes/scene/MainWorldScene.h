@@ -14,6 +14,9 @@
 
 USING_NS_CC;
 
+
+//GameView
+//主世界地图
 class MainWorldScene : public Layer
 {
 public:

@@ -39,7 +39,7 @@ Scene* LoadtoStart::createScene()
 bool LoadtoStart::init()
 {
     if (!Layer::init())
-    return false;
+        return false;
     num = 0;
     
     m_iLoadedNum = 0;

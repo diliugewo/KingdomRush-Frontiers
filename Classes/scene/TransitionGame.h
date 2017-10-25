@@ -13,8 +13,8 @@ public:
     void onEnter();
     static TransitionGame *create(float t, Scene* scene);
 private:
-    void LRFinish(void);
-    void OnSecondActionFinish(void);
+    void LRFinish();
+    void OnSecondActionFinish();
     
     int m_iFinshCnt;
 };
