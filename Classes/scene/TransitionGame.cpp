@@ -90,6 +90,7 @@ void TransitionGame::OnSecondActionFinish()
 {
     if (UserDefault::getInstance()->getBoolForKey("isPlayEffect"))
         SimpleAudioEngine::getInstance()->playEffect("sound/GUITransitionClose.wav");
+    //切换延迟 手动显示入场景
     _inScene->setVisible(true);
     _outScene->setVisible(false);
 }

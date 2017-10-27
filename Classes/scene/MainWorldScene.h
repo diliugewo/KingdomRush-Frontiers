@@ -11,6 +11,7 @@
 
 #include "cocos2d.h"
 #include "GameManager.h"
+#include "Road.h"
 
 USING_NS_CC;
 
@@ -36,7 +37,7 @@ public:
     void onEnterTransitionDidFinish();
     Size m_winSize;
     Sprite* m_pbgSprite;
-    //Road* m_proad;
+    Road* m_proad;
     //Vector<MapFlag*> m_mapFlagVector;
     std::vector<Point> m_mapFlagPointVector;
     GameManager *m_pinstance;

@@ -258,12 +258,11 @@ void Start::btn_Newgame_CallBack(Ref* pSender,Widget::TouchEventType type)
         int sid = atoi((usertext.c_str()));
         
         GameManager* instance = GameManager::getInstance();
-        //切换游戏大地图场景
         instance->setInstance(sid);
         SimpleAudioEngine::getInstance()->stopBackgroundMusic();
         UserDefault::getInstance()->setBoolForKey(instance->SaveGame, true);
         
-        //Director::getInstance()->replaceScene(TransitionGame::create(2.0f, LoadtoStart::createScene()));
+        //切换游戏大地图场景
         Director::getInstance()->replaceScene(TransitionGame::create(2.0f,MainWorldScene::createScene()));
     }
 }
