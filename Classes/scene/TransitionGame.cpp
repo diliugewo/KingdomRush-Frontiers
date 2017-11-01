@@ -60,22 +60,22 @@ void TransitionGame::onEnter()
     sp_right->addChild(sp_right_);
     
     //关门动画
-    auto pActionLeft = MoveTo::create(_duration / 3, LeftEnd);
-    auto pActionRight = MoveTo::create(_duration / 3, RightEnd);
+    auto pActionLeft = MoveTo::create(_duration / 5, LeftEnd);
+    auto pActionRight = MoveTo::create(_duration / 5, RightEnd);
     
     //开门动画
-    auto pActionLeft1 = MoveTo::create(_duration / 3, LeftBegin);
-    auto pActionRight1 = MoveTo::create(_duration / 3, RightBegin);
+    auto pActionLeft1 = MoveTo::create(_duration / 4, LeftBegin);
+    auto pActionRight1 = MoveTo::create(_duration / 4, RightBegin);
     
     if (UserDefault::getInstance()->getBoolForKey("isPlayEffect"))
         SimpleAudioEngine::getInstance()->playEffect("sound/GUITransitionOpen.wav");
     sp_left->runAction(Sequence::create(EaseBackIn::create(pActionLeft),
                                     CallFunc::create(CC_CALLBACK_0(TransitionGame::OnSecondActionFinish, this)),
-                                        DelayTime::create(1.0f),
+                                        DelayTime::create(1),
                                         EaseBackOut::create(pActionLeft1),
                                         NULL));
     sp_right->runAction(Sequence::create(EaseBackIn::create(pActionRight),
-                                          DelayTime::create(1.0f),
+                                          DelayTime::create(1),
                                          EaseBackOut::create(pActionRight1),
                                          CallFunc::create(CC_CALLBACK_0(TransitionGame::LRFinish, this)),
                                           NULL));

@@ -88,6 +88,7 @@ void Road::setRoadReady()
 
 void Road::initRoadAni()
 {
+    //!!!图片名字可能有变 数量有变
     SpriteFrame* frame0 = NULL;
     Vector<SpriteFrame*> vecFrame0;
     for (int i = 1; i <= 7; i += 3)
@@ -231,5 +232,4 @@ void Road::initRoadAni()
             vecFrame13.pushBack(frame13);
     }
     roadAniVector.pushBack(Animation::createWithSpriteFrames(vecFrame13, 0.1f));
-
 }

@@ -7,6 +7,7 @@
 //
 
 #include <stdio.h>
+#include "MapFlag.h"
 
 MapFlag::MapFlag()
 {}
@@ -14,7 +15,9 @@ MapFlag::MapFlag()
 MapFlag::~MapFlag()
 {}
 bool MapFlag::initwithLevel(int level)
-{}
+{
+    return true;
+}
 
 MapFlag* MapFlag::createWithLevel(int Level)
 {}

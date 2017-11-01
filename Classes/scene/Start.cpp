@@ -21,7 +21,9 @@ bool Start::init()
     }
     visibleSize = Director::getInstance()->getVisibleSize();
     m_bSaveshow = false;
-    SimpleAudioEngine::getInstance()->playBackgroundMusic("sound/savage_music_theme.wav", true);
+    
+    if(UserDefault::getInstance()->getBoolForKey("isPlayMusic"))
+        SimpleAudioEngine::getInstance()->playBackgroundMusic("sound/savage_music_theme.wav", true);
 
     auto rootNode = CSLoader::createNode("Start.csb");
 
@@ -32,7 +34,30 @@ bool Start::init()
     btn_Effect = (Button*)rootNode->getChildByName("btn_Effect");
     btn_Music->addTouchEventListener(CC_CALLBACK_2(Start::btn_Music_CallBack, this));
     btn_Effect->addTouchEventListener(CC_CALLBACK_2(Start::btn_Effect_CallBack, this));
-
+    if (UserDefault::getInstance()->getBoolForKey("isPlayMusic", true))//为真就停止音乐
+    {
+        SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
+        btn_Music->loadTextureNormal("options_overlay_buttons_0001.png", TextureResType::PLIST);
+        btn_Music->loadTexturePressed("options_overlay_buttons_0002.png", TextureResType::PLIST);
+    }
+    else
+    {
+        SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
+        btn_Music->loadTextureNormal("options_overlay_buttons_0002.png", TextureResType::PLIST);
+        btn_Music->loadTexturePressed("options_overlay_buttons_0001.png", TextureResType::PLIST);
+    }
+    if (UserDefault::getInstance()->getBoolForKey("isPlayEffect", true))//为真就停止音效
+    {
+        btn_Effect->loadTextureNormal("options_overlay_buttons_0003.png", TextureResType::PLIST);
+        btn_Effect->loadTexturePressed("options_overlay_buttons_0004.png", TextureResType::PLIST);
+    }
+    else
+    {
+        SimpleAudioEngine::getInstance()->stopAllEffects();
+        btn_Effect->loadTextureNormal("options_overlay_buttons_0004.png", TextureResType::PLIST);
+        btn_Effect->loadTexturePressed("options_overlay_buttons_0003.png", TextureResType::PLIST);
+    }
+    
     //获取LOG精灵
     auto sp_Log = (Sprite*)rootNode->getChildByName("sp_Log");
     sp_Log->setScale(0.2);
@@ -107,6 +132,7 @@ bool Start::init()
     //测试 有存档1
     UserDefault::getInstance()->setBoolForKey("SavaGame1", true);
     UserDefault::getInstance()->setIntegerForKey("SavaGame1_Star", 50);
+    UserDefault::getInstance()->setIntegerForKey("SaveGame1_NewDown", 1);
     
     initSaveMenu();
     
@@ -356,7 +382,8 @@ void Start::btn_Music_CallBack(Ref* pSender,Widget::TouchEventType type)
             btn_Music->loadTexturePressed("options_overlay_buttons_0002.png", TextureResType::PLIST);
             UserDefault::getInstance()->setBoolForKey("isPlayMusic", true);
         }
-        SimpleAudioEngine::getInstance()->playEffect("sound/dj.wav");
+        if(UserDefault::getInstance()->getBoolForKey("isPlayEffect"))
+            SimpleAudioEngine::getInstance()->playEffect("sound/dj.wav");
     }
 }
 
@@ -374,12 +401,12 @@ void Start::btn_Effect_CallBack(Ref* pSender,Widget::TouchEventType type)
         }
         else
         {
-            //SimpleAudioEngine::getInstance()->;
             btn_Effect->loadTextureNormal("options_overlay_buttons_0003.png", TextureResType::PLIST);
             btn_Effect->loadTexturePressed("options_overlay_buttons_0004.png", TextureResType::PLIST);
             UserDefault::getInstance()->setBoolForKey("isPlayEffect", true);
         }
-        SimpleAudioEngine::getInstance()->playEffect("sound/dj.wav");
+        if(UserDefault::getInstance()->getBoolForKey("isPlayEffect"))
+            SimpleAudioEngine::getInstance()->playEffect("sound/dj.wav");
     }
 }
 
