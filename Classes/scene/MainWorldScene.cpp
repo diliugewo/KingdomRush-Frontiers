@@ -29,8 +29,8 @@ bool MainWorldScene::init()
     if (!Layer::init())
         return false;
     
-    auto rootNode = CSLoader::createNode("mainworld.csb");
-    addChild(rootNode);
+    m_rootNode = CSLoader::createNode("mainworld.csb");
+    addChild(m_rootNode);
     
     if(UserDefault::getInstance()->getBoolForKey("isPlayMusic"))
         SimpleAudioEngine::getInstance()->playBackgroundMusic("sound/Map_Theme_1.wav", true);
@@ -39,7 +39,7 @@ bool MainWorldScene::init()
     m_winSize = Director::getInstance()->getWinSize();
     
     //获取 世界地图
-    m_pbgSprite = (Sprite*)rootNode->getChildByName("sp_MainWorld");
+    m_pbgSprite = (Sprite*)m_rootNode->getChildByName("sp_MainWorld");
 
     m_mapFlagPointVector.push_back(Point(375,775));
     m_mapFlagPointVector.push_back(Point(495,735));
@@ -57,44 +57,10 @@ bool MainWorldScene::init()
     m_mapFlagPointVector.push_back(Point(1015,770));
     addRoad();
     
-    btn_Setting = (Button*)Helper::seekWidgetByName(static_cast<Layout*>(rootNode), "btn_Setting");
+    btn_Setting = dynamic_cast<Button*>(Helper::seekWidgetByName((Layout*)m_rootNode, "btn_Setting"));
     btn_Setting->addTouchEventListener(CC_CALLBACK_2(MainWorldScene::btn_Settings,this));
     
-    //添加设置节点
-    auto setNode = CSLoader::createNode("Setting.csb");
-    addChild(setNode,1,1);
-    setNode->setVisible(false);
-    setNode->setAnchorPoint(Vec2(0.5, 0));
-    setNode->setPosition(Vec2(btn_Setting->getPositionX(), btn_Setting->getPositionY() + 40));
-    btn_Music = (Button*)Helper::seekWidgetByName(static_cast<Layout*>(setNode), "btn_Music");
-    btn_Effect = (Button*)Helper::seekWidgetByName(static_cast<Layout*>(setNode), "btn_Effect");
-    btn_Music->addTouchEventListener(CC_CALLBACK_2(MainWorldScene::btn_Music_CallBack, this));
-    btn_Effect->addTouchEventListener(CC_CALLBACK_2(MainWorldScene::btn_Effect_CallBack, this));
-    btn_Home = (Button*)Helper::seekWidgetByName(static_cast<Layout*>(setNode), "btn_Home");
-    btn_Home->addTouchEventListener(CC_CALLBACK_2(MainWorldScene::btn_Home_CallBack,this));
-    if (UserDefault::getInstance()->getBoolForKey("isPlayMusic", true))//为真就停止音乐
-    {
-        SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
-        btn_Music->loadTextureNormal("options_overlay_buttons_0001.png", TextureResType::PLIST);
-        btn_Music->loadTexturePressed("options_overlay_buttons_0002.png", TextureResType::PLIST);
-    }
-    else
-    {
-        SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
-        btn_Music->loadTextureNormal("options_overlay_buttons_0002.png", TextureResType::PLIST);
-        btn_Music->loadTexturePressed("options_overlay_buttons_0001.png", TextureResType::PLIST);
-    }
-    if (UserDefault::getInstance()->getBoolForKey("isPlayEffect", true))//为真就停止音效
-    {
-        btn_Effect->loadTextureNormal("options_overlay_buttons_0003.png", TextureResType::PLIST);
-        btn_Effect->loadTexturePressed("options_overlay_buttons_0004.png", TextureResType::PLIST);
-    }
-    else
-    {
-        SimpleAudioEngine::getInstance()->stopAllEffects();
-        btn_Effect->loadTextureNormal("options_overlay_buttons_0004.png", TextureResType::PLIST);
-        btn_Effect->loadTexturePressed("options_overlay_buttons_0003.png", TextureResType::PLIST);
-    }
+    addSceneElements();
     
     //添加移动触摸
     auto listener = EventListenerTouchAllAtOnce::create();
@@ -181,6 +147,71 @@ void MainWorldScene::addRoad()
 
 void MainWorldScene::addNewMapFlag(int num)
 {}
+
+void MainWorldScene::addSettings()
+{
+    auto setNode = CSLoader::createNode("Setting.csb");
+    addChild(setNode,1,1);
+    setNode->setVisible(false);
+    setNode->setAnchorPoint(Vec2(0.5, 0));
+    setNode->setPosition(Vec2(btn_Setting->getPositionX(), btn_Setting->getPositionY() + 40));
+    btn_Music = dynamic_cast<Button*>(Helper::seekWidgetByName(static_cast<Layout*>(setNode), "btn_Music"));
+    btn_Effect = dynamic_cast<Button*>(Helper::seekWidgetByName(static_cast<Layout*>(setNode), "btn_Effect"));
+    btn_Music->addTouchEventListener(CC_CALLBACK_2(MainWorldScene::btn_Music_CallBack, this));
+    btn_Effect->addTouchEventListener(CC_CALLBACK_2(MainWorldScene::btn_Effect_CallBack, this));
+    btn_Home = dynamic_cast<Button*>(Helper::seekWidgetByName(static_cast<Layout*>(setNode), "btn_Home"));
+    btn_Home->addTouchEventListener(CC_CALLBACK_2(MainWorldScene::btn_Home_CallBack,this));
+    if (UserDefault::getInstance()->getBoolForKey("isPlayMusic", true))//为真就停止音乐
+    {
+        SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
+        btn_Music->loadTextureNormal("options_overlay_buttons_0001.png", TextureResType::PLIST);
+        btn_Music->loadTexturePressed("options_overlay_buttons_0002.png", TextureResType::PLIST);
+    }
+    else
+    {
+        SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
+        btn_Music->loadTextureNormal("options_overlay_buttons_0002.png", TextureResType::PLIST);
+        btn_Music->loadTexturePressed("options_overlay_buttons_0001.png", TextureResType::PLIST);
+    }
+    if (UserDefault::getInstance()->getBoolForKey("isPlayEffect", true))//为真就停止音效
+    {
+        btn_Effect->loadTextureNormal("options_overlay_buttons_0003.png", TextureResType::PLIST);
+        btn_Effect->loadTexturePressed("options_overlay_buttons_0004.png", TextureResType::PLIST);
+    }
+    else
+    {
+        SimpleAudioEngine::getInstance()->stopAllEffects();
+        btn_Effect->loadTextureNormal("options_overlay_buttons_0004.png", TextureResType::PLIST);
+        btn_Effect->loadTexturePressed("options_overlay_buttons_0003.png", TextureResType::PLIST);
+    }
+}
+
+void MainWorldScene::addSceneElements()
+{
+    addSettings();
+    //widget子类才能使用以下2种方法seekWidgetByName seekWidgetByTag
+    //auto node = static_cast<Node*>(Helper::seekWidgetByName(static_cast<Layout*>(m_rootNode), "node_gem_star"));wrong
+    //auto node = static_cast<Node*>(Helper::seekWidgetByTag(static_cast<Layout*>(m_rootNode), 3));wrong
+    //通用方法 getChildByName getChildByTag
+    //auto node = static_cast<Node*>(m_rootNode->getChildByName("node_gem_star"));//right
+    auto node = static_cast<Node*>(m_rootNode->getChildByTag(3));
+    //在widget子类层次下才能使用以下2种方法  Helper::seekWidgetByName可以在整个对象结构中直接查找。 但是不能查找node节点下的
+    //auto atn_gem = (TextAtlas*)Helper::seekWidgetByName(static_cast<Layout*>(m_rootNode), "atn_Gem");//wrong???
+    //auto atn_gem = (TextAtlas*)Helper::seekWidgetByTag(static_cast<Layout*>(m_rootNode), 1);wrong
+    //否则从父节点使用通用方法
+    //auto atn_gem = (TextAtlas*)node->getChildByTag(1);//right
+    auto atn_gem = (TextAtlas*)node->getChildByName("atn_Gem");//right
+    //否则从父节点使用以下2种方法seekWidgetByName seekWidgetByTag
+    //auto atn_gem = (TextAtlas*)Helper::seekWidgetByTag(static_cast<Layout*>(node), 1);//right
+    //auto atn_gem = (TextAtlas*)Helper::seekWidgetByName(static_cast<Layout*>(node), "atn_Gem");//right
+    
+    log("%d !!!", UserDefault::getInstance()->getIntegerForKey(m_pinstance->SaveGem, 0));
+    atn_gem->setString(String::createWithFormat("%d", UserDefault::getInstance()->getIntegerForKey(m_pinstance->SaveGem, 0))->getCString());
+    //auto atn_star = (TextAtlas*)Helper::seekWidgetByName(static_cast<Layout*>(m_rootNode), "atn_Star");
+    //auto atn_star = (TextAtlas*)Helper::seekWidgetByTag(static_cast<Layout*>(m_rootNode), 2);
+    auto atn_star = dynamic_cast<TextAtlas*>(node->getChildByTag(2));
+    atn_star->setString(String::createWithFormat("%d", UserDefault::getInstance()->getIntegerForKey(m_pinstance->SaveStar, 0))->getCString());
+}
 
 void MainWorldScene::onEnterTransitionDidFinish()
 {

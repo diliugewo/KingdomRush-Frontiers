@@ -22,8 +22,9 @@ bool Start::init()
     visibleSize = Director::getInstance()->getVisibleSize();
     m_bSaveshow = false;
     
-    if(UserDefault::getInstance()->getBoolForKey("isPlayMusic"))
-        SimpleAudioEngine::getInstance()->playBackgroundMusic("sound/savage_music_theme.wav", true);
+    SimpleAudioEngine::getInstance()->playBackgroundMusic("sound/savage_music_theme.wav", true);
+    if(!UserDefault::getInstance()->getBoolForKey("isPlayMusic"))
+        SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
 
     auto rootNode = CSLoader::createNode("Start.csb");
 
@@ -130,9 +131,10 @@ bool Start::init()
     m_nodeSavelot->setPosition(Vec2(visibleSize.width / 2, -300));
     
     //测试 有存档1
-    UserDefault::getInstance()->setBoolForKey("SavaGame1", true);
-    UserDefault::getInstance()->setIntegerForKey("SavaGame1_Star", 50);
+    UserDefault::getInstance()->setBoolForKey("SaveGame1", true);
+    UserDefault::getInstance()->setIntegerForKey("SaveGame1_Star", 50);
     UserDefault::getInstance()->setIntegerForKey("SaveGame1_NewDown", 1);
+    UserDefault::getInstance()->setIntegerForKey("SaveGame1_Gem", 50);
     
     initSaveMenu();
     
@@ -203,33 +205,33 @@ void Start::initSaveMenu()
 void Start::deleteGameRecord(int sid)
 {
     //开启存档
-    UserDefault::getInstance()->setBoolForKey(String::createWithFormat("SavaGame%d", sid)->getCString(), false);
+    UserDefault::getInstance()->setBoolForKey(String::createWithFormat("SaveGame%d", sid)->getCString(), false);
     //
     for(int i=0;i<13;i++)
     {
-        UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Level_%d", sid, i)->getCString(),0);
+        UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SaveGame%d_Level_%d", sid, i)->getCString(),0);
     }
     
     for(int i=0;i<13;i++)
     {
-        UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Level_%d_star", sid, i)->getCString(),0);
+        UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SaveGame%d_Level_%d_star", sid, i)->getCString(),0);
     }
     
-    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_DownCount", sid)->getCString(),0);
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SaveGame%d_DownCount", sid)->getCString(),0);
     
-    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_NewDown", sid)->getCString(),0);
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SaveGame%d_NewDown", sid)->getCString(),0);
     
-    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_StarLeft", sid)->getCString(),0);
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SaveGame%d_StarLeft", sid)->getCString(),0);
     
     //总星数
-    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Star", sid)->getCString(),0);
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SaveGame%d_Star", sid)->getCString(),0);
     
     //宝石
-    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Gem", sid)->getCString(),0);
+    UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SaveGame%d_Gem", sid)->getCString(),0);
     
     //物品数量
     for(int i = 0;i<6;i++)
-        UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SavaGame%d_Shop_%d", sid, i)->getCString(),0);
+        UserDefault::getInstance()->setIntegerForKey(String::createWithFormat("SaveGame%d_Shop_%d", sid, i)->getCString(),0);
 }
 
 void Start::conform_delete(Ref* pSender, int sid)
@@ -248,7 +250,6 @@ void Start::conform_delete(Ref* pSender, int sid)
     
     //删除游戏存档
     deleteGameRecord(sid);
-    
 }
 
 void Start::cancel_delete(Ref* pSender, int sid)

@@ -38,6 +38,10 @@ public:
     void addMapFlag();
     void addRoad();
     void addNewMapFlag(int num);
+    //添加设置节点
+    void addSettings();
+    //添加场景元素
+    void addSceneElements();
     
     void onEnterTransitionDidFinish();
     void btn_Settings(Ref* pSender, Widget::TouchEventType type);
@@ -49,6 +53,7 @@ public:
     Size m_winSize;
     Sprite* m_pbgSprite;
     Road* m_proad;
+    Node* m_rootNode;
     //Vector<MapFlag*> m_mapFlagVector;
     std::vector<Point> m_mapFlagPointVector;
     GameManager *m_pinstance;

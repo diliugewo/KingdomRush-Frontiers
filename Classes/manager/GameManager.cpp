@@ -36,7 +36,7 @@ void GameManager::setInstance(int sid)
     
     sprintf(LevelNewOpen, "SaveGame%d_NewDown", sid);
     
-    sprintf(SaveStar, "SavaGame%d_Star", sid);
+    sprintf(SaveStar, "SaveGame%d_Star", sid);
     
     sprintf(SaveStarLeft, "SaveGame%d_StarLeft", sid);
     
