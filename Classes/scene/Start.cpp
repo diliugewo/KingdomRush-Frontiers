@@ -135,7 +135,9 @@ bool Start::init()
     UserDefault::getInstance()->setIntegerForKey("SaveGame1_Star", 50);
     UserDefault::getInstance()->setIntegerForKey("SaveGame1_NewDown", 1);
     UserDefault::getInstance()->setIntegerForKey("SaveGame1_Gem", 50);
-    
+    UserDefault::getInstance()->flush();
+    //log("%s", UserDefault::getInstance()->getXMLFilePath().c_str());
+    log("%s", FileUtils::getInstance()->getWritablePath().c_str());
     initSaveMenu();
     
     btn_Close = (Button*)Helper::seekWidgetByName(static_cast<Layout*>(m_nodeSavelot), "btn_Close");

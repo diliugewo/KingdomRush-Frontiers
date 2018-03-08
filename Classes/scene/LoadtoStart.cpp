@@ -47,7 +47,8 @@ bool LoadtoStart::init()
     m_bLoading = false;
     schedule(schedule_selector(LoadtoStart::Logic));
 
-    auto rootloader = CSLoader::createNode("Load.csb");
+    //auto rootloader = CSLoader::createNode("Load.csb");
+    auto rootloader = CSLoader::createNodeWithVisibleSize("Load.csb");
     addChild(rootloader);
     return true;
 }

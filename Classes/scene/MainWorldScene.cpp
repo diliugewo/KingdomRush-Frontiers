@@ -200,10 +200,13 @@ void MainWorldScene::addSceneElements()
     //auto atn_gem = (TextAtlas*)Helper::seekWidgetByTag(static_cast<Layout*>(m_rootNode), 1);wrong
     //否则从父节点使用通用方法
     //auto atn_gem = (TextAtlas*)node->getChildByTag(1);//right
-    auto atn_gem = (TextAtlas*)node->getChildByName("atn_Gem");//right
+    //auto atn_gem = (TextAtlas*)node->getChildByName("atn_Gem");//right
     //否则从父节点使用以下2种方法seekWidgetByName seekWidgetByTag
     //auto atn_gem = (TextAtlas*)Helper::seekWidgetByTag(static_cast<Layout*>(node), 1);//right
-    //auto atn_gem = (TextAtlas*)Helper::seekWidgetByName(static_cast<Layout*>(node), "atn_Gem");//right
+    auto atn_gem = (TextAtlas*)Helper::seekWidgetByName(static_cast<Layout*>(node), "atn_Gem");//right
+    
+    //wrong!!!即要转换的指针指向的对象的实际类型与转换以后的对象类型一定要相同，否则转换失败。
+    //auto atn_gem = (TextAtlas*)Helper::seekWidgetByName(dynamic_cast<Layout*>(node), "atn_Gem");
     
     log("%d !!!", UserDefault::getInstance()->getIntegerForKey(m_pinstance->SaveGem, 0));
     atn_gem->setString(String::createWithFormat("%d", UserDefault::getInstance()->getIntegerForKey(m_pinstance->SaveGem, 0))->getCString());
@@ -211,6 +214,10 @@ void MainWorldScene::addSceneElements()
     //auto atn_star = (TextAtlas*)Helper::seekWidgetByTag(static_cast<Layout*>(m_rootNode), 2);
     auto atn_star = dynamic_cast<TextAtlas*>(node->getChildByTag(2));
     atn_star->setString(String::createWithFormat("%d", UserDefault::getInstance()->getIntegerForKey(m_pinstance->SaveStar, 0))->getCString());
+    
+    m_winSize = Director::getInstance()->getWinSize();
+    auto sp_Showgs = dynamic_cast<Sprite*>(node->getChildByTag(3));
+    node->setPosition(Vec2(m_winSize.width - sp_Showgs->getContentSize().width / 2 - 20 - sp_Showgs->getPositionX(), m_winSize.height - sp_Showgs->getContentSize().height / 2 - 20 - sp_Showgs->getPositionY()));
 }
 
 void MainWorldScene::onEnterTransitionDidFinish()
